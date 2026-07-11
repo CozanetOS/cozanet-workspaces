@@ -1,0 +1,24 @@
+{
+  "name": "@cozanet/workspaces",
+  "version": "1.0.0",
+  "description": "Cozanet OS Workspace Management Engine for CEO AI agents",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"No tests specified yet\""
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "eventemitter3": "^5.0.1",
+    "pino": "^9.6.0",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "typescript": "^5.8.2"
+  },
+  "author": "CozanetOS",
+  "license": "MIT"
+}
