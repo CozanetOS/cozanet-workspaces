@@ -1,83 +1,114 @@
-# CozanetOS Workspaces
+# CozanetOS Workspaces: The AI-Native Multi-Workspace Environment
 
-The official workspace orchestration and layout management framework for **Cozanet OS**, powered by **CEO AI**.
-
-## Philosophy
-
-In **Cozanet OS**, workspaces are context-rich user interface windows that the **CEO AI** opens, focuses, resizes, or closes depending on the task currently being executed. Rather than forcing the human user (or the agent itself) to manually manage window configurations, the system manages contexts programmatically based on the active flow.
-
-### Task-to-Workspace Mappings
-
-The **CEO AI** evaluates the active goal and launches targeted workspaces to support it:
-
-- **Research** ➜ Browser Workspace + Notes Workspace
-- **Coding** ➜ Code Editor Workspace + Terminal Workspace
-- **Learning** ➜ CX7 3D Engine Workspace + Voice/Notes Workspace
-- **Planning** ➜ Notes Workspace + System Dashboard Workspace
-- **Debugging** ➜ Log Stream Workspace + Terminal + Code Editor
-- **Data Operations** ➜ Database + Dashboard Workspaces
-- **Communication** ➜ Email / Messaging Workspaces
-- **File Management** ➜ Files Workspace
+An integral component of **CozanetOS**—the AI-native operating system designed for frictionless human-agent collaboration.
 
 ---
 
-## Architecture
+## Overview
 
-This repository contains the core TypeScript engine responsible for layout optimization, session lifecycle, state syncing, and specialized workspaces:
-
-1. **`WorkspaceManager` (`id: 'workspaces:manager'`)**
-   - The central orchestrator. Receives task-level directives from the CEO AI and handles the spawning, updates, and terminations of workspace sessions.
-2. **`LayoutEngine`**
-   - Implements optimal layout placement strategies (`single`, `split-h`, `split-v`, `grid`, `focus`) depending on active screen real estate and workspace count.
-3. **Specialized Workspace Controllers**
-   - `BrowserWorkspace` (Syncs with the `browser:engine` microservice)
-   - `CodeWorkspace` (Intelligent source code explorer)
-   - `TerminalWorkspace` (Communicates with the `terminal:shell` backend execution environment)
-   - `NotesWorkspace` (Manages document drafting and brainstorming logs)
-   - `CX7Workspace` (Activates immersive spaces inside the CX7 WorldEngine)
-   - `DashboardWorkspace` (Aggregates system-wide telemetry and overview stats)
+CozanetOS Workspaces provides the unified desktop, workspace, and windowing environment for CozanetOS. It serves as the primary multi-modal surface where humans and AI agents work together, offering a highly adaptive, stateful suite of workspaces (browser, code, terminal, visual studio, email, databases) that automatically organize, synchronize, and persist based on the task context.
 
 ---
 
-## Installation & Usage
+## Core Capabilities
 
-Install the package dependencies:
+- **Conversation Workspace**: The primary chat and interaction stream where users and AI agents communicate, plan, and dispatch complex system tasks.
+- **Browser Workspace**: An embedded, secure web browser fully instrumented for AI agent navigation, scraping, form-filling, and interactive automation.
+- **Code Workspace**: A complete IDE-like workspace featuring syntax highlighting, diagnostic language servers, git integration, and real-time AI pair programming.
+- **Terminal Workspace**: Integrated, isolated shell environments permitting secure CLI execution with AI command explanation and prompt generation.
+- **CX7 Workspace**: The native integration workspace for the CX7 visual studio, allowing users to build visual assets, edit schemas, and preview animations.
+- **Email Workspace**: A fully managed workspace for email operations, supporting OAuth-linked Gmail and Outlook inbox sync, filtering, and AI draft generation.
+- **Notes Workspace**: Markdown-driven personal knowledge manager equipped with automated semantic categorization, backlinking, and semantic search.
+- **Dashboard Workspace**: Real-time operating system diagnostics, active agent execution queues, resource monitors, and audit logs.
+- **Database Workspace**: A powerful visual client for browsing, searching, schema-editing, and querying SQL/NoSQL databases with AI query assistance.
+- **API Workspace**: A sandbox for testing APIs, exploring schemas, managing keys, and automatically generating robust client SDKs.
+- **Workspace Manager**: Robust window layout management enabling fluid workspace switching, resizing, split-screens, docking, and full-screen modes.
+- **Adaptive Layout Engine**: Automatically rearranges panels, tools, and sidecars based on the active task and recommendation from operating system agents.
+- **Session Persistence**: Captures and persists the precise state, open files, active terminal histories, and browser tabs across operating system restarts.
+- **Cross-Workspace Data Sharing**: Seamless drag-and-drop mechanics and shared clipboard contexts permitting data movement (such as files, variables, or code snippets) between workspaces.
+- **Workspace Plugin SDK**: Extend the capabilities of any workspace or create entirely custom workspaces utilizing our standard React/Vue workspace SDK.
 
-```bash
-npm install
-```
+---
 
-Build the TypeScript source:
+## Architecture & Components
 
-```bash
-npm run build
-```
+The cozanet-workspaces subsystem utilizes a container-based viewport architecture:
+1. **Workspace Hub (Core Window Manager)**: Orchestrates window splits, tab grouping, viewport ratios, and overlay layers.
+2. **Workspace Sandboxes**: Each workspace operates in an isolated iframe or web worker context, communicating over a structured, high-speed RPC event bus.
+3. **State Sync Broker**: Syncs files, selections, and terminal buffers to local state providers, saving snapshot metadata to the system database for instant session restoration.
+4. **Agent Hook Layer**: Provides standardized APIs exposing window states, file buffers, and viewports directly to background agents.
 
-### Integration Example
+---
+
+## API & Interface Overview
+
+Here is an example of interacting with this module programmatically:
 
 ```typescript
-import { WorkspaceManager, LayoutEngine } from '@cozanet/workspaces';
+import { WorkspaceManager, BrowserWorkspace } from '@cozanetos/workspaces';
 
-const manager = new WorkspaceManager();
-const layoutEngine = new LayoutEngine();
+// Access the running workspace manager
+const manager = WorkspaceManager.getInstance();
 
-// Create a new UI Session for a user
-const session = manager.createSession('user-id-999');
+// Create and open a new browser workspace
+const browserTab = new BrowserWorkspace({
+  id: 'agent-search-01',
+  initialUrl: 'https://news.ycombinator.com',
+  isAgentControlled: true
+});
 
-// CEO AI decides to initiate coding tasks
-const opened = await manager.openForTask('coding', session.id);
+// Add to the layout grid on the right split
+manager.layout.addWorkspace(browserTab, { position: 'right', ratio: 0.5 });
 
-// Dynamically optimize the window arrangement
-const optimalLayout = layoutEngine.arrange(opened, 'split-v');
-manager.setLayout(session.id, optimalLayout);
+// Programmatically hook workspace events
+browserTab.on('navigate', (url) => {
+  console.log(`Agent-directed browser navigated to: ${url}`);
+});
 ```
 
 ---
 
-## Tech Stack
-- **TypeScript**
-- **eventemitter3** (Event-driven workspace bus)
-- **@supabase/supabase-js** (Optional cloud state synchronization)
-- **zod** (Config validation)
-- **pino** (High performance structured logs)
-- **uuid** (Id generations)
+## Integration with Other CozanetOS Modules
+
+This module is designed to interact seamlessly with other core layers of the CozanetOS ecosystem:
+
+- **cozanet-apps**: Supplies context and launchers for external apps installed into the operating system.
+- **cozanet-core**: Bridges file operations, security constraints, and database connections to active viewports.
+- **cozanet-cx7**: Provides the underlying vector rendering and diagramming layer for the CX7 Studio workspace.
+- **cozanet-browser / cozanet-terminal**: Supplies the low-level headless drivers, terminal processes, and network tunnels required by interactive workspaces.
+
+---
+
+## Quick-Start Notes
+
+To begin using **cozanet-workspaces** inside your CozanetOS development environment:
+
+### 1. Installation
+Add the module to your application:
+```bash
+npm install @cozanetos/workspaces
+# or
+yarn add @cozanetos/workspaces
+```
+
+### 2. Configuration
+Ensure your environment variables are configured in your `.env` file or registered inside your CozanetOS dashboard:
+```env
+COZANET_ENV=development
+# Add module-specific configuration as required
+```
+
+### 3. Initialize & Run
+Import the core module and start the process:
+```javascript
+import { Initialize } from '@cozanetos/workspaces';
+
+Initialize().then(() => {
+  console.log('cozanet-workspaces initialized successfully within CozanetOS.');
+});
+```
+
+---
+
+## License & Support
+Part of the CozanetOS open platform suite. For security disclosures, active status monitors, or developer support, please visit the central CozanetOS portal.
